@@ -1,392 +1,455 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Flowdesk — The Tool That Just Works</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+<title>NΞXUS — The center of everything you build</title>
+<meta name="description" content="NΞXUS is the AI workspace that connects your tools, your team, and your ideas — beautifully fast." />
 
-  :root {
-    --bg: #0a0a0f;
-    --text: #ffffff;
-    --muted: #8a8a9a;
-    --accent: #7c5cff;
-    --accent2: #00d4ff;
-  }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  html { scroll-behavior: smooth; }
+<link rel="stylesheet" href="styles.css" />
 
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* Ambient gradient orbs */
-  .orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.35;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .orb-1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -150px; }
-  .orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -100px; right: -100px; }
-
-  /* Nav */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    padding: 1.5rem 3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
-    backdrop-filter: blur(20px);
-    background: rgba(10, 10, 15, 0.5);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .logo { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; }
-  .logo span { color: var(--accent); }
-  .nav-links { display: flex; gap: 2rem; }
-  .nav-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.3s ease;
-  }
-  .nav-links a:hover { color: var(--text); }
-
-  /* Buttons */
-  .btn {
-    padding: 0.8rem 1.8rem;
-    border-radius: 100px;
-    border: none;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-  }
-  .btn-primary:hover {
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 15px 40px rgba(124, 92, 255, 0.4);
-  }
-
-  /* Hero */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 8rem 2rem 4rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 100px;
-    background: rgba(124, 92, 255, 0.1);
-    border: 1px solid rgba(124, 92, 255, 0.3);
-    font-size: 0.85rem;
-    color: #b8a8ff;
-    margin-bottom: 2rem;
-  }
-  .badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #00ff88;
-    box-shadow: 0 0 10px #00ff88;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .hero h1 {
-    font-size: clamp(2.5rem, 7vw, 5.5rem);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.04em;
-    max-width: 900px;
-    margin-bottom: 1.5rem;
-  }
-  .hero h1 .gradient {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .hero p {
-    font-size: 1.15rem;
-    color: var(--muted);
-    max-width: 550px;
-    line-height: 1.6;
-    margin-bottom: 2.5rem;
-  }
-
-  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
-
-  /* Reveal animation classes */
-  .reveal { opacity: 0; transform: translateY(40px); }
-
-  /* Features */
-  .features {
-    padding: 6rem 3rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
-  .section-title {
-    text-align: center;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    margin-bottom: 1rem;
-  }
-  .section-sub {
-    text-align: center;
-    color: var(--muted);
-    max-width: 500px;
-    margin: 0 auto 4rem;
-    line-height: 1.6;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .card {
-    padding: 2.5rem 2rem;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-                border-color 0.4s ease,
-                background 0.4s ease;
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  .card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(124, 92, 255, 0.5);
-    background: rgba(124, 92, 255, 0.05);
-  }
-
-  .card-icon {
-    width: 48px; height: 48px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; font-weight: 600; }
-  .card p { color: var(--muted); line-height: 1.6; font-size: 0.95rem; }
-
-  /* CTA */
-  .cta {
-    text-align: center;
-    padding: 8rem 2rem;
-    position: relative;
-    z-index: 1;
-  }
-  .cta h2 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    margin-bottom: 2rem;
-  }
-
-  footer {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: var(--muted);
-    font-size: 0.85rem;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    position: relative;
-    z-index: 1;
-  }
-
-  @media (max-width: 640px) {
-    nav { padding: 1rem 1.5rem; }
-    .nav-links { display: none; }
-    .features { padding: 4rem 1.5rem; }
-  }
-</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.42/bundled/lenis.min.js" defer></script>
+<script src="script.js" defer></script>
 </head>
 <body>
 
-  <!-- Ambient orbs -->
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+<!-- ░░ CINEMATIC OPENING ░░ -->
+<div class="opening" id="opening">
+  <div class="opening-center">
+    <div class="opening-logo" id="openingLogo">NΞXUS</div>
+  </div>
+  <div class="opening-sweep" id="openingSweep"></div>
+</div>
 
-  <!-- Nav -->
-  <nav>
-    <div class="logo">Flow<span>desk</span></div>
-    <div class="nav-links">
+<!-- ░░ Cursor ░░ -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<!-- ░░ Nav ░░ -->
+<nav class="nav">
+  <a href="#" class="nav-logo">NΞXUS</a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-actions">
+    <div class="status-pill">
+      <span class="status-dot"></span> Live
+    </div>
+    <a href="#cta" class="btn btn-red nav-cta">Get started</a>
+  </div>
+</nav>
+
+<!-- ░░ Hero ░░ -->
+<section class="hero" id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow hero-reveal">
+      <span class="dot-red"></span>
+      <span class="mono">v2.0 — NOW IN PUBLIC BETA</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line"><span class="line-inner">THE CENTER</span></span>
+      <span class="line"><span class="line-inner">OF EVERYTHING</span></span>
+      <span class="line"><span class="line-inner">YOU <em>BUILD</em>.</span></span>
+    </h1>
+
+    <p class="hero-sub hero-reveal">
+      NΞXUS is the AI workspace that connects your tools, your team, and your ideas — beautifully fast.
+    </p>
+
+    <div class="hero-actions hero-reveal">
+      <a href="#cta" class="btn btn-red magnetic">Start free →</a>
+      <a href="#showcase" class="btn btn-outline magnetic">Watch demo</a>
+    </div>
+
+    <div class="hero-meta hero-reveal">
+      <span><span class="dot-green"></span> No credit card</span>
+      <span class="sep">/</span>
+      <span><span class="dot-green"></span> Free forever tier</span>
+      <span class="sep">/</span>
+      <span><span class="dot-green"></span> SOC 2 compliant</span>
+    </div>
+  </div>
+
+  <div class="hero-mockup">
+    <div class="mockup-window">
+      <div class="mockup-bar">
+        <span></span><span></span><span></span>
+        <div class="mockup-title mono">nΞxus · workspace</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-sidebar">
+          <div class="mock-item active">◉ Dashboard</div>
+          <div class="mock-item">◇ Agents</div>
+          <div class="mock-item">◈ Workflows</div>
+          <div class="mock-item">◆ Logs</div>
+        </div>
+        <div class="mockup-main">
+          <div class="mock-card">
+            <div class="mock-card-title mono">ACTIVE AGENTS</div>
+            <div class="mock-card-num">12</div>
+            <div class="mock-spark">
+              <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+                <path d="M0 20 L15 12 L30 18 L45 8 L60 15 L75 5 L100 10" />
+              </svg>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-title mono">RUNS TODAY</div>
+            <div class="mock-card-num green">4,829</div>
+            <div class="mock-spark green">
+              <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+                <path d="M0 25 L20 20 L35 22 L50 12 L65 16 L80 6 L100 9" />
+              </svg>
+            </div>
+          </div>
+          <div class="mock-terminal mono">
+            <div><span class="tk-red">→</span> agent.deploy("support-bot")</div>
+            <div class="tk-dim">✓ deployed in 1.2s</div>
+            <div><span class="tk-red">→</span> agent.run("analyze inbox")</div>
+            <div class="tk-dim">✓ 47 tasks completed</div>
+            <div class="tk-cursor">▊</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ Marquee ░░ -->
+<section class="marquee-section">
+  <div class="marquee">
+    <div class="marquee-track mono">
+      <span class="mk-label">Trusted by teams at</span>
+      <span class="logo-mock">◆ VERCEL</span>
+      <span class="logo-mock">◇ LINEAR</span>
+      <span class="logo-mock">◈ NOTION</span>
+      <span class="logo-mock">◆ FIGMA</span>
+      <span class="logo-mock">◇ STRIPE</span>
+      <span class="logo-mock">◈ SUPABASE</span>
+      <span class="mk-label">Trusted by teams at</span>
+      <span class="logo-mock">◆ VERCEL</span>
+      <span class="logo-mock">◇ LINEAR</span>
+      <span class="logo-mock">◈ NOTION</span>
+      <span class="logo-mock">◆ FIGMA</span>
+      <span class="logo-mock">◇ STRIPE</span>
+      <span class="logo-mock">◈ SUPABASE</span>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ Features ░░ -->
+<section class="section features" id="features">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">01 / FEATURES</div>
+    <h2 class="section-title reveal">Built for how <em>modern</em> teams work</h2>
+    <p class="section-sub reveal">Every detail crafted to remove friction. Every interaction feels effortless.</p>
+  </div>
+
+  <div class="features-grid">
+    <article class="feature-card slide-up">
+      <div class="feature-icon">⚡</div>
+      <h3>Sub-50ms inference</h3>
+      <p>A globally distributed edge runtime that responds before your users blink.</p>
+    </article>
+    <article class="feature-card slide-up">
+      <div class="feature-icon">🧠</div>
+      <h3>Agent memory</h3>
+      <p>Persistent, contextual memory that makes every agent smarter over time.</p>
+    </article>
+    <article class="feature-card slide-up">
+      <div class="feature-icon">🔒</div>
+      <h3>Private by default</h3>
+      <p>End-to-end encryption. Your data never trains our models. Ever.</p>
+    </article>
+    <article class="feature-card slide-up">
+      <div class="feature-icon">🔌</div>
+      <h3>100+ integrations</h3>
+      <p>Slack, Notion, GitHub, Stripe — connect anything in one click.</p>
+    </article>
+    <article class="feature-card slide-up">
+      <div class="feature-icon">📊</div>
+      <h3>Realtime observability</h3>
+      <p>Trace every agent decision. Debug, replay, and improve instantly.</p>
+    </article>
+    <article class="feature-card slide-up">
+      <div class="feature-icon">🚀</div>
+      <h3>Ship in minutes</h3>
+      <p>From idea to production agent without touching infrastructure.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ░░ How it works ░░ -->
+<section class="section how" id="how">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">02 / HOW IT WORKS</div>
+    <h2 class="section-title reveal">Three steps to your <em>first agent</em></h2>
+  </div>
+
+  <div class="steps">
+    <div class="step slide-left">
+      <div class="step-num">01</div>
+      <h3>Describe</h3>
+      <p>Tell NΞXUS what you want in plain English. No code, no config.</p>
+    </div>
+    <div class="step slide-left">
+      <div class="step-num">02</div>
+      <h3>Connect</h3>
+      <p>Plug in your tools, data, and APIs. NΞXUS handles the rest.</p>
+    </div>
+    <div class="step slide-left">
+      <div class="step-num">03</div>
+      <h3>Deploy</h3>
+      <p>One click. Live in seconds. Scale to millions automatically.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ Stats ░░ -->
+<section class="section showcase" id="showcase">
+  <div class="stats-grid">
+    <div class="stat scale-in">
+      <div class="stat-num" data-count="99.99">0</div>
+      <div class="stat-label mono">% UPTIME</div>
+    </div>
+    <div class="stat scale-in">
+      <div class="stat-num" data-count="50">0</div>
+      <div class="stat-label mono">MS AVG LATENCY</div>
+    </div>
+    <div class="stat scale-in">
+      <div class="stat-num" data-count="12000">0</div>
+      <div class="stat-label mono">TEAMS BUILDING</div>
+    </div>
+    <div class="stat scale-in">
+      <div class="stat-num" data-count="98">0</div>
+      <div class="stat-label mono">% SATISFACTION</div>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ Compare ░░ -->
+<section class="section compare">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">03 / WHY NΞXUS</div>
+    <h2 class="section-title reveal">Others build tools. <em>We build leverage.</em></h2>
+  </div>
+
+  <div class="compare-table">
+    <div class="compare-row compare-head slide-right">
+      <div></div>
+      <div>NΞXUS</div>
+      <div>OTHERS</div>
+    </div>
+    <div class="compare-row slide-right">
+      <div>Setup time</div>
+      <div>2 minutes</div>
+      <div>2 weeks</div>
+    </div>
+    <div class="compare-row slide-right">
+      <div>Latency</div>
+      <div>50ms</div>
+      <div>800ms+</div>
+    </div>
+    <div class="compare-row slide-right">
+      <div>Memory</div>
+      <div>Persistent</div>
+      <div>Stateless</div>
+    </div>
+    <div class="compare-row slide-right">
+      <div>Privacy</div>
+      <div>E2E encrypted</div>
+      <div>Trains on data</div>
+    </div>
+    <div class="compare-row slide-right">
+      <div>Pricing</div>
+      <div>Transparent</div>
+      <div>Hidden fees</div>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ Testimonials ░░ -->
+<section class="section testimonials">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">04 / LOVED BY BUILDERS</div>
+    <h2 class="section-title reveal">Don't take our <em>word</em> for it</h2>
+  </div>
+
+  <div class="testimonial-grid">
+    <blockquote class="testimonial rotate-in">
+      <p>"NΞXUS replaced 4 internal tools and cut our agent build time from weeks to hours."</p>
+      <footer>
+        <span class="t-avatar">AK</span>
+        <div><strong>Anika Kapoor</strong><br><small>Head of AI · Linear</small></div>
+      </footer>
+    </blockquote>
+    <blockquote class="testimonial rotate-in">
+      <p>"The smoothest product I've used this year. It feels like the future, today."</p>
+      <footer>
+        <span class="t-avatar">MR</span>
+        <div><strong>Marcus Rivera</strong><br><small>CTO · Supabase</small></div>
+      </footer>
+    </blockquote>
+    <blockquote class="testimonial rotate-in">
+      <p>"We shipped a production agent in 12 minutes. Our board didn't believe it."</p>
+      <footer>
+        <span class="t-avatar">SL</span>
+        <div><strong>Sofia Lindqvist</strong><br><small>VP Eng · Stripe</small></div>
+      </footer>
+    </blockquote>
+  </div>
+</section>
+
+<!-- ░░ Integrations ░░ -->
+<section class="section integrations">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">05 / INTEGRATIONS</div>
+    <h2 class="section-title reveal">Plays well with <em>everything</em></h2>
+  </div>
+  <div class="integration-grid">
+    <div class="int-item pop">Slack</div>
+    <div class="int-item pop">Notion</div>
+    <div class="int-item pop">GitHub</div>
+    <div class="int-item pop">Stripe</div>
+    <div class="int-item pop">Linear</div>
+    <div class="int-item pop">Figma</div>
+    <div class="int-item pop">Vercel</div>
+    <div class="int-item pop">Supabase</div>
+    <div class="int-item pop">Discord</div>
+    <div class="int-item pop">Zapier</div>
+    <div class="int-item pop">Postgres</div>
+    <div class="int-item pop">+88 more</div>
+  </div>
+</section>
+
+<!-- ░░ Pricing ░░ -->
+<section class="section pricing" id="pricing">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">06 / PRICING</div>
+    <h2 class="section-title reveal">Simple pricing. <em>Serious power.</em></h2>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="price-card slide-up">
+      <h3>Starter</h3>
+      <div class="price">$0<span>/mo</span></div>
+      <ul>
+        <li>1 agent</li>
+        <li>1,000 runs/mo</li>
+        <li>Community support</li>
+      </ul>
+      <a href="#cta" class="btn btn-outline">Start free</a>
+    </div>
+    <div class="price-card featured slide-up">
+      <div class="price-badge mono">MOST POPULAR</div>
+      <h3>Pro</h3>
+      <div class="price">$29<span>/mo</span></div>
+      <ul>
+        <li>Unlimited agents</li>
+        <li>100,000 runs/mo</li>
+        <li>Priority support</li>
+        <li>Advanced analytics</li>
+      </ul>
+      <a href="#cta" class="btn btn-red">Start free trial</a>
+    </div>
+    <div class="price-card slide-up">
+      <h3>Enterprise</h3>
+      <div class="price">Custom</div>
+      <ul>
+        <li>Unlimited everything</li>
+        <li>SSO / SAML</li>
+        <li>Dedicated support</li>
+        <li>On-prem option</li>
+      </ul>
+      <a href="#cta" class="btn btn-outline">Contact sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- ░░ FAQ ░░ -->
+<section class="section faq" id="faq">
+  <div class="section-head">
+    <div class="eyebrow mono reveal">07 / FAQ</div>
+    <h2 class="section-title reveal">Questions, <em>answered</em></h2>
+  </div>
+
+  <div class="faq-list">
+    <details class="faq-item slide-left">
+      <summary>Is NΞXUS really free to start?</summary>
+      <p>Yes. The Starter tier is free forever — no credit card required. Upgrade only when you outgrow it.</p>
+    </details>
+    <details class="faq-item slide-left">
+      <summary>How is my data handled?</summary>
+      <p>End-to-end encryption, zero retention for training, SOC 2 Type II compliant. Your data is yours.</p>
+    </details>
+    <details class="faq-item slide-left">
+      <summary>Can I self-host?</summary>
+      <p>Enterprise plans include a fully self-hosted deployment option. Contact sales for details.</p>
+    </details>
+    <details class="faq-item slide-left">
+      <summary>What models do you use?</summary>
+      <p>NΞXUS is model-agnostic. Bring your own, or use our optimized defaults — GPT, Claude, Llama, and more.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ░░ CTA ░░ -->
+<section class="section cta" id="cta">
+  <div class="cta-inner scale-in">
+    <h2 class="reveal">Ready to build your <em>first agent</em>?</h2>
+    <p class="reveal">Join 12,000+ teams shipping faster with NΞXUS.</p>
+    <form class="cta-form reveal" onsubmit="event.preventDefault(); this.querySelector('button').textContent='✓ You\'re in';">
+      <input type="email" placeholder="you@company.com" required />
+      <button type="submit" class="btn btn-red magnetic">Get early access</button>
+    </form>
+  </div>
+</section>
+
+<!-- ░░ Footer ░░ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">NΞXUS</div>
+      <p>The center of everything you build.</p>
+    </div>
+    <div class="footer-col">
+      <h4 class="mono">PRODUCT</h4>
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
-      <a href="#docs">Docs</a>
+      <a href="#showcase">Showcase</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <button class="btn btn-primary">Get Started</button>
-  </nav>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="badge reveal">Now in public beta</div>
-    <h1 class="reveal">
-      The tool that <span class="gradient">just works</span>.
-    </h1>
-    <p class="reveal">
-      Everything you need to plan, build, and ship — in one beautifully fast workspace. No setup. No friction. Just flow.
-    </p>
-    <div class="hero-actions reveal">
-      <button class="btn btn-primary">Start free →</button>
-      <button class="btn" style="background: rgba(255,255,255,0.08); color: white;">Watch demo</button>
+    <div class="footer-col">
+      <h4 class="mono">COMPANY</h4>
+      <a href="#">About</a>
+      <a href="#">Blog</a>
+      <a href="#">Careers</a>
+      <a href="#">Contact</a>
     </div>
-  </section>
-
-  <!-- Features -->
-  <section class="features" id="features">
-    <h2 class="section-title reveal">Built for how you actually work</h2>
-    <p class="section-sub reveal">Every detail crafted to remove friction and let you focus on what matters.</p>
-
-    <div class="grid">
-      <div class="card">
-        <div class="card-icon">⚡</div>
-        <h3>Blazing fast</h3>
-        <p>Sub-50ms interactions. Powered by a real-time sync engine that never makes you wait.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🎨</div>
-        <h3>Beautifully designed</h3>
-        <p>Every pixel intentional. A UI that feels calm, clear, and a joy to use every day.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🔒</div>
-        <h3>Private by default</h3>
-        <p>End-to-end encryption. Your data stays yours — always. No ads, no tracking, ever.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🔌</div>
-        <h3>Works with everything</h3>
-        <p>Connect Slack, Notion, GitHub, and 100+ tools in one click. Your stack, unified.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">📱</div>
-        <h3>Everywhere you are</h3>
-        <p>Native apps for web, desktop, iOS, and Android. Always in sync, always fast.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🚀</div>
-        <h3>Ship faster</h3>
-        <p>Templates, automations, and AI assistance to help you move from idea to done.</p>
-      </div>
+    <div class="footer-col">
+      <h4 class="mono">LEGAL</h4>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Security</a>
+      <a href="#">Status</a>
     </div>
-  </section>
+  </div>
+  <div class="footer-bottom mono">
+    <span>© 2025 NΞXUS — CRAFTED WITH CARE.</span>
+    <span>MADE FOR THE FUTURE.</span>
+  </div>
+</footer>
 
-  <!-- CTA -->
-  <section class="cta">
-    <h2 class="reveal">Ready to find your flow?</h2>
-    <button class="btn btn-primary reveal" style="font-size: 1.05rem; padding: 1rem 2.5rem;">
-      Get started — it's free
-    </button>
-  </section>
-
-  <footer>
-    © 2025 Flowdesk. Crafted with care.
-  </footer>
-
-  <script>
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Hero staggered reveal
-    gsap.to(".hero .reveal", {
-      opacity: 1,
-      y: 0,
-      duration: 1.1,
-      ease: "power3.out",
-      stagger: 0.15,
-      delay: 0.3
-    });
-
-    // Section titles on scroll
-    gsap.utils.toArray(".features .reveal").forEach((el) => {
-      gsap.to(el, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: el, start: "top 85%" }
-      });
-    });
-
-    // Cards staggered on scroll
-    gsap.to(".card", {
-      opacity: 1,
-      y: 0,
-      duration: 0.9,
-      ease: "power3.out",
-      stagger: 0.12,
-      scrollTrigger: { trigger: ".grid", start: "top 80%" }
-    });
-
-    // CTA reveal
-    gsap.utils.toArray(".cta .reveal").forEach((el, i) => {
-      gsap.to(el, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power3.out",
-        delay: i * 0.15,
-        scrollTrigger: { trigger: ".cta", start: "top 80%" }
-      });
-    });
-
-    // Ambient orbs floating
-    gsap.to(".orb-1", {
-      x: 80, y: 60, duration: 12, repeat: -1, yoyo: true, ease: "sine.inOut"
-    });
-    gsap.to(".orb-2", {
-      x: -80, y: -60, duration: 14, repeat: -1, yoyo: true, ease: "sine.inOut"
-    });
-
-    // Magnetic button hover
-    document.querySelectorAll(".btn-primary").forEach((btn) => {
-      btn.addEventListener("mousemove", (e) => {
-        const rect = btn.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        gsap.to(btn, { x: x * 0.2, y: y * 0.3, duration: 0.4, ease: "power2.out" });
-      });
-      btn.addEventListener("mouseleave", () => {
-        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
-      });
-    });
-  </script>
 </body>
 </html>
