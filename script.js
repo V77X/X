@@ -255,30 +255,7 @@
       gsap.to(heroGlow, { yPercent: 30, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 } });
     }
 
-    /* ---------- HORIZONTAL SCROLL SHOWCASE ---------- */
-    var hScrollSection = document.querySelector('.h-scroll');
-    if (hScrollSection) {
-      var hTrack = hScrollSection.querySelector('.h-track');
-      if (hTrack) {
-        var cards = hTrack.querySelectorAll('.h-card');
-        var totalScroll = hTrack.scrollWidth - window.innerWidth;
-
-        gsap.to(hTrack, {
-          x: -totalScroll,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: hScrollSection,
-            start: 'top top',
-            end: '+' + totalScroll,
-            pin: true,
-            scrub: 1,
-            invalidateOnRefresh: true
-          }
-        });
-      }
-    }
-  }
-
+   
   /* ---------- Magnetic buttons ---------- */
   if (typeof gsap !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
     var mags = document.querySelectorAll('.magnetic');
