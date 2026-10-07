@@ -701,3 +701,11 @@ button, input { font: inherit; color: inherit; }
 .h-card {
   scroll-snap-align: start;
 }
+/* Horizontal scroll — snappy Apple-like feel */
+.h-scroll {
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 2.5rem;
+}
+.h-card {
+  scroll-snap-align: start;
+}
