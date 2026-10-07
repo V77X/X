@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flowdesk — The Tool That Just Works</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --text: #ffffff;
+    --muted: #8a8a9a;
+    --accent: #7c5cff;
+    --accent2: #00d4ff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ambient gradient orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -150px; }
+  .orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -100px; right: -100px; }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    background: rgba(10, 10, 15, 0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .logo { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* Buttons */
+  .btn {
+    padding: 0.8rem 1.8rem;
+    border-radius: 100px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 15px 40px rgba(124, 92, 255, 0.4);
+  }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    background: rgba(124, 92, 255, 0.1);
+    border: 1px solid rgba(124, 92, 255, 0.3);
+    font-size: 0.85rem;
+    color: #b8a8ff;
+    margin-bottom: 2rem;
+  }
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    max-width: 900px;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 550px;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+  /* Reveal animation classes */
+  .reveal { opacity: 0; transform: translateY(40px); }
+
+  /* Features */
+  .features {
+    padding: 6rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .section-title {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    text-align: center;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto 4rem;
+    line-height: 1.6;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    padding: 2.5rem 2rem;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.4s ease,
+                background 0.4s ease;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(124, 92, 255, 0.5);
+    background: rgba(124, 92, 255, 0.05);
+  }
+
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; font-weight: 600; }
+  .card p { color: var(--muted); line-height: 1.6; font-size: 0.95rem; }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 8rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+  .cta h2 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+  }
+
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .features { padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Ambient orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Nav -->
+  <nav>
+    <div class="logo">Flow<span>desk</span></div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#docs">Docs</a>
+    </div>
+    <button class="btn btn-primary">Get Started</button>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="badge reveal">Now in public beta</div>
+    <h1 class="reveal">
+      The tool that <span class="gradient">just works</span>.
+    </h1>
+    <p class="reveal">
+      Everything you need to plan, build, and ship — in one beautifully fast workspace. No setup. No friction. Just flow.
+    </p>
+    <div class="hero-actions reveal">
+      <button class="btn btn-primary">Start free →</button>
+      <button class="btn" style="background: rgba(255,255,255,0.08); color: white;">Watch demo</button>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <h2 class="section-title reveal">Built for how you actually work</h2>
+    <p class="section-sub reveal">Every detail crafted to remove friction and let you focus on what matters.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Blazing fast</h3>
+        <p>Sub-50ms interactions. Powered by a real-time sync engine that never makes you wait.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>Beautifully designed</h3>
+        <p>Every pixel intentional. A UI that feels calm, clear, and a joy to use every day.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>Private by default</h3>
+        <p>End-to-end encryption. Your data stays yours — always. No ads, no tracking, ever.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔌</div>
+        <h3>Works with everything</h3>
+        <p>Connect Slack, Notion, GitHub, and 100+ tools in one click. Your stack, unified.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <h3>Everywhere you are</h3>
+        <p>Native apps for web, desktop, iOS, and Android. Always in sync, always fast.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>Ship faster</h3>
+        <p>Templates, automations, and AI assistance to help you move from idea to done.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2 class="reveal">Ready to find your flow?</h2>
+    <button class="btn btn-primary reveal" style="font-size: 1.05rem; padding: 1rem 2.5rem;">
+      Get started — it's free
+    </button>
+  </section>
+
+  <footer>
+    © 2025 Flowdesk. Crafted with care.
+  </footer>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero staggered reveal
+    gsap.to(".hero .reveal", {
+      opacity: 1,
+      y: 0,
+      duration: 1.1,
+      ease: "power3.out",
+      stagger: 0.15,
+      delay: 0.3
+    });
+
+    // Section titles on scroll
+    gsap.utils.toArray(".features .reveal").forEach((el) => {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: { trigger: el, start: "top 85%" }
+      });
+    });
+
+    // Cards staggered on scroll
+    gsap.to(".card", {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      ease: "power3.out",
+      stagger: 0.12,
+      scrollTrigger: { trigger: ".grid", start: "top 80%" }
+    });
+
+    // CTA reveal
+    gsap.utils.toArray(".cta .reveal").forEach((el, i) => {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power3.out",
+        delay: i * 0.15,
+        scrollTrigger: { trigger: ".cta", start: "top 80%" }
+      });
+    });
+
+    // Ambient orbs floating
+    gsap.to(".orb-1", {
+      x: 80, y: 60, duration: 12, repeat: -1, yoyo: true, ease: "sine.inOut"
+    });
+    gsap.to(".orb-2", {
+      x: -80, y: -60, duration: 14, repeat: -1, yoyo: true, ease: "sine.inOut"
+    });
+
+    // Magnetic button hover
+    document.querySelectorAll(".btn-primary").forEach((btn) => {
+      btn.addEventListener("mousemove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        gsap.to(btn, { x: x * 0.2, y: y * 0.3, duration: 0.4, ease: "power2.out" });
+      });
+      btn.addEventListener("mouseleave", () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
+      });
+    });
+  </script>
+</body>
+</html>
