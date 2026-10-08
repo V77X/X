@@ -17,7 +17,6 @@
   var openingSweep = document.getElementById('openingSweep');
   var openingDone = false;
 
-  // HARD SAFETY: after 2.5s, force-hide opening no matter what
   var safetyTimer = setTimeout(function () {
     if (opening && !openingDone) {
       opening.style.transition = 'opacity 0.4s';
@@ -32,7 +31,6 @@
     }
   }, 2500);
 
-  // Audio unlock
   var audioCtx = null;
   function ensureAudio() {
     if (!audioCtx) {
@@ -43,7 +41,6 @@
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   }
 
-  // Sound
   function playOpeningSound() {
     ensureAudio();
     if (!audioCtx) return;
@@ -72,7 +69,6 @@
     rise.start(now + 0.1); rise.stop(now + 1.3);
   }
 
-  // Run opening (only if GSAP available, else skip)
   function runOpening() {
     if (!opening || typeof gsap === 'undefined') {
       if (opening) opening.style.display = 'none';
@@ -103,12 +99,10 @@
       .to(openingSweep, { x: '100%', duration: 0.45, ease: 'power3.in' }, '-=0.15');
   }
 
-  // Kick off on load
   window.addEventListener('load', function () {
     setTimeout(runOpening, 200);
   });
 
-  // Unlock audio on first interaction
   ['click', 'touchstart', 'keydown', 'scroll'].forEach(function (ev) {
     window.addEventListener(ev, ensureAudio, { once: true });
   });
@@ -184,7 +178,6 @@
     requestAnimationFrame(frame);
   }
 
-  // Apply scramble to nav logo on hover
   var navLogo = document.querySelector('.nav-logo');
   if (navLogo) {
     var originalText = navLogo.textContent;
@@ -225,7 +218,6 @@
       gsap.to(el, { opacity: 1, scale: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
     });
 
-    // Number counters
     gsap.utils.toArray('.stat-num').forEach(function (el) {
       var target = parseFloat(el.getAttribute('data-count'));
       var obj = { val: 0 };
@@ -244,7 +236,6 @@
       });
     });
 
-    /* ---------- PARALLAX ---------- */
     var mockup = document.querySelector('.hero-mockup');
     if (mockup) {
       gsap.to(mockup, { yPercent: -15, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 } });
@@ -254,8 +245,8 @@
     if (heroGlow) {
       gsap.to(heroGlow, { yPercent: 30, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 } });
     }
+  }
 
-   
   /* ---------- Magnetic buttons ---------- */
   if (typeof gsap !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
     var mags = document.querySelectorAll('.magnetic');
